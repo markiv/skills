@@ -8,6 +8,8 @@ Build cross-platform iOS and Android apps with [Skip](https://skip.dev) using Sw
 - **building-skip-ui** — SwiftUI component support on Android via SkipUI, Compose customization, cross-platform view patterns, navigation, state management
 - **skip-lite-transpilation** — Critical rules for Skip Lite (transpiled) mode: integer overflow, type comparison errors, unsupported patterns, Kotlin interop
 - **skip-frameworks** — Integrating optional Skip frameworks: Firebase, SQL, Keychain, WebView, AV, Device sensors, Lottie, FFI, and more
+- **skip-icons** — Working with icons. Why `Image(systemName:)` silently fails on Android for most SF Symbols (only ~50 names are hardcoded), and the canonical replacement — downloading Material Symbols from `fonts.google.com/icons` in Apple symbolset format and rendering with `Image("name", bundle: .module)` inside the `Label { Text } icon: { Image }` form.
+- **skip-localization** — Translating in-app strings via `Localizable.xcstrings`, iOS `Info.plist` usage descriptions via `InfoPlist.xcstrings`, and App Store / Google Play metadata under `fastlane/`. The `Text("…", bundle: .module, comment: "…")` extraction convention, translation states, byte-budgeted store metadata, validation with `xcstringstool` and `skip verify`.
 
 ## When to use
 
@@ -17,6 +19,8 @@ Use this plugin when:
 - Writing Swift code in a Skip Lite (transpiled) project
 - Adding optional frameworks like Firebase, SQLite, or secure storage
 - Customizing Android rendering with Jetpack Compose
+- Adding icons that need to render on both platforms
+- Adding or updating translations for in-app strings, Info.plist permission prompts, or store metadata
 
 ## License
 

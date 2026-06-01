@@ -59,7 +59,7 @@ jobs:
         run: brew install skiptools/skip/skip
 
       - name: Export release
-        run: skip export -c release -o ./artifacts
+        run: skip export -c release -d ./artifacts
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

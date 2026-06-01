@@ -8,7 +8,7 @@ Complete templates for adding optional frameworks to a Skip project after creati
 
 ```swift
 // Add to dependencies:
-.package(url: "https://source.skip.dev/skip-sql.git", from: "1.0.0"),
+.package(url: "https://source.skip.tools/skip-sql.git", from: "1.0.0"),
 
 // Add to model target dependencies:
 .product(name: "SkipSQL", package: "skip-sql"),
@@ -77,7 +77,7 @@ class DatabaseManager {
 
 ```swift
 // Add to dependencies:
-.package(url: "https://source.skip.dev/skip-keychain.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-keychain.git", "0.0.0"..<"2.0.0"),
 
 // Add to model target dependencies:
 .product(name: "SkipKeychain", package: "skip-keychain"),
@@ -126,7 +126,7 @@ extension ViewModel {
 
 ```swift
 // Add to dependencies:
-.package(url: "https://source.skip.dev/skip-firebase.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-firebase.git", "0.0.0"..<"2.0.0"),
 
 // Add to target dependencies (add only modules you need):
 .product(name: "SkipFirebaseCore", package: "skip-firebase"),
@@ -185,7 +185,7 @@ import SkipFirebaseAuth
 
 ```swift
 // Add to dependencies (if not already added for Auth):
-.package(url: "https://source.skip.dev/skip-firebase.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-firebase.git", "0.0.0"..<"2.0.0"),
 
 // Add to target dependencies:
 .product(name: "SkipFirebaseCore", package: "skip-firebase"),
@@ -223,7 +223,7 @@ import SkipFirebaseFirestore
 
 ```swift
 // Add to dependencies:
-.package(url: "https://source.skip.dev/skip-web.git", from: "1.0.0"),
+.package(url: "https://source.skip.tools/skip-web.git", from: "1.0.0"),
 
 // Add to UI target dependencies:
 .product(name: "SkipWeb", package: "skip-web"),
@@ -278,7 +278,7 @@ struct BrowserView: View {
 
 ```swift
 // Add to dependencies:
-.package(url: "https://source.skip.dev/skip-av.git", from: "1.0.0"),
+.package(url: "https://source.skip.tools/skip-av.git", from: "1.0.0"),
 
 // Add to UI target dependencies:
 .product(name: "SkipAV", package: "skip-av"),
@@ -315,7 +315,7 @@ struct VideoPlayerView: View {
 
 ```swift
 // Add to dependencies:
-.package(url: "https://source.skip.dev/skip-device.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-device.git", "0.0.0"..<"2.0.0"),
 
 // Add to model target dependencies:
 .product(name: "SkipDevice", package: "skip-device"),
@@ -371,7 +371,7 @@ import SkipDevice
 
 ```swift
 // Add to dependencies:
-.package(url: "https://source.skip.dev/skip-motion.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-motion.git", "0.0.0"..<"2.0.0"),
 
 // Add to UI target dependencies:
 .product(name: "SkipMotion", package: "skip-motion"),
@@ -426,7 +426,7 @@ Place Lottie JSON files in `Sources/<Module>/Resources/`.
 
 ```swift
 // Add to dependencies:
-.package(url: "https://source.skip.dev/skip-supabase.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-supabase.git", "0.0.0"..<"2.0.0"),
 
 // Add to model target dependencies:
 .product(name: "SkipSupabase", package: "skip-supabase"),
@@ -466,8 +466,8 @@ let package = Package(
         .package(url: "https://source.skip.tools/skip-model.git", from: "1.0.0"),
         .package(url: "https://source.skip.tools/skip-foundation.git", from: "1.0.0"),
         // Added frameworks:
-        .package(url: "https://source.skip.dev/skip-sql.git", from: "1.0.0"),
-        .package(url: "https://source.skip.dev/skip-keychain.git", "0.0.0"..<"2.0.0"),
+        .package(url: "https://source.skip.tools/skip-sql.git", from: "1.0.0"),
+        .package(url: "https://source.skip.tools/skip-keychain.git", "0.0.0"..<"2.0.0"),
     ],
     targets: [
         .target(name: "MyApp", dependencies: [

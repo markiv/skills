@@ -25,7 +25,7 @@ Add only the modules you need:
 
 ```swift
 dependencies: [
-    .package(url: "https://source.skip.dev/skip-firebase.git", "0.0.0"..<"2.0.0"),
+    .package(url: "https://source.skip.tools/skip-firebase.git", "0.0.0"..<"2.0.0"),
 ],
 targets: [
     .target(name: "MyApp", dependencies: [

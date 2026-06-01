@@ -1,9 +1,30 @@
 {
   "name": "skip-app-design",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Build cross-platform iOS and Android apps with Skip using SwiftUI, optional frameworks, and Skip Lite transpilation",
+  "homepage": "https://skip.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skiptools/skills"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "skip",
+    "swiftui",
+    "ios",
+    "android",
+    "kotlin",
+    "jetpack-compose",
+    "cross-platform",
+    "mobile",
+    "material-symbols",
+    "localization",
+    "xcstrings",
+    "transpilation"
+  ],
   "author": {
     "name": "Skip",
-    "email": "support@skip.dev"
+    "email": "support@skip.dev",
+    "url": "https://skip.dev"
   }
 }

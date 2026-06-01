@@ -1,6 +1,6 @@
 ---
 name: building-skip-ui
-description: Building SwiftUI views in Skip projects that work on both iOS and Android. Covers supported components, navigation, state management, Jetpack Compose customization, Material 3 theming, and cross-platform UI patterns.
+description: Building SwiftUI views in Skip projects that work on both iOS and Android. Covers supported components, navigation, state management, Jetpack Compose customization, Material 3 theming, the cross-platform Image / icon pattern (the `systemImage:` trap and the Material Symbols workflow), and the localization-correct `Label { Text } icon: { Image }` shape.
 ---
 
 # Building Skip UI
@@ -13,9 +13,9 @@ A Skip app uses standard SwiftUI with the SkipUI framework:
 
 ```swift
 // Package.swift dependencies
-.package(url: "https://source.skip.dev/skip.git", from: "1.2.0"),
-.package(url: "https://source.skip.dev/skip-ui.git", from: "1.0.0"),
-.package(url: "https://source.skip.dev/skip-foundation.git", from: "1.0.0"),
+.package(url: "https://source.skip.tools/skip.git", from: "1.2.0"),
+.package(url: "https://source.skip.tools/skip-ui.git", from: "1.0.0"),
+.package(url: "https://source.skip.tools/skip-foundation.git", from: "1.0.0"),
 ```
 
 Create projects with:
@@ -26,10 +26,11 @@ skip init --native-app --appid=com.example.myapp my-app MyApp  # Fuse
 
 ## Supported Components
 
-Consult the reference files for detailed component tables:
-- ./references/components.md -- Full component support table
-- ./references/compose-customization.md -- Compose and Material 3 customization
-- ./references/patterns.md -- Common cross-platform UI patterns
+Consult the reference files for detailed tables:
+- [`references/components.md`](references/components.md) — full component support table
+- [`references/compose-customization.md`](references/compose-customization.md) — Compose and Material 3 customisation
+- [`references/patterns.md`](references/patterns.md) — common cross-platform UI patterns
+- [`references/unimplemented-apis.md`](references/unimplemented-apis.md) — the catalog of SwiftUI APIs marked `@available(*, unavailable)` in SkipUI, organised by file and category. Consult this when a build error says "This API is not yet available in Skip."
 
 ### Layout (Full Support)
 `VStack`, `HStack`, `ZStack`, `Group`, `Spacer`, `GeometryReader`, `ScrollView`, `LazyVStack`, `LazyHStack`, `LazyVGrid`, `LazyHGrid`, `Grid`, `GridRow`, `Form`, `Section`
@@ -54,6 +55,30 @@ Consult the reference files for detailed component tables:
 - `matchedGeometryEffect`: Not available
 - `@FetchRequest`: Not available — use SkipSQL or SkipFirebase
 - Custom `Shape` with complex `AnimatableData`: Not available
+- `.contentShape(Rectangle())`: Not implemented yet — emits *"This API is not yet available in Skip"* at transpile time. Drop the modifier or wrap in `#if !SKIP`. The Button hit-target it usually expands is large enough on its own when the label is an HStack containing a `Spacer()`.
+- `ToolbarItem(placement: .topBarTrailing) { ... }`: `topBarTrailing` is `unavailable` on macOS. Skip's `Package.swift` declares `macOS(.v14)` alongside `iOS(.v17)`, so any Skip target that builds for macOS will fail with "topBarTrailing is unavailable in macOS". Use `.primaryAction` instead — it has the same visual placement on iOS, is available on macOS, and transpiles to a Compose `TopAppBar` action slot:
+   ```swift
+   .toolbar {
+       ToolbarItem(placement: .primaryAction) {   // not .topBarTrailing
+           Menu { ... } label: { Image(systemName: "ellipsis") }
+       }
+   }
+   ```
+- `Array.remove(atOffsets: IndexSet)`: this is provided by **SwiftUI's** extension on `RangeReplaceableCollection`, not by Foundation. A pure-model module that doesn't `import SwiftUI` will not have it. Either import SwiftUI in the model, or expose a plain `func remove(at: [Int])` and let the view convert `Array(offsets)`:
+   ```swift
+   // In TodoAppModel/ViewModel.swift — no SwiftUI import needed
+   public func remove(at indices: [Int]) {
+       for index in indices.sorted(by: >) where index < items.count {
+           items.remove(at: index)
+       }
+   }
+   ```
+   ```swift
+   // In TodoApp/ContentView.swift — SwiftUI is imported, IndexSet → [Int]
+   .onDelete { offsets in
+       viewModel.remove(at: Array(offsets))
+   }
+   ```
 
 ## Cross-Platform View Pattern
 
@@ -142,6 +167,43 @@ Customize Material 3 theming:
 ContentView()
     .material3ColorScheme(ColorScheme(primary: Color.blue, onPrimary: Color.white))
 ```
+
+## Icons
+
+`Image(systemName:)` and `Label(_, systemImage:)` rely on Apple's SF Symbols catalog, which has no Android equivalent. SkipUI hardcodes a compatibility map for only about 50 SF Symbol names — every other SF Symbol passed to `systemImage:` renders blank (or as a placeholder) on Android while still rendering correctly on iOS, so the bug only shows up cross-platform.
+
+For any icon outside that small list, download Material Symbols from `https://fonts.google.com/icons` in **Apple symbolset format** (not raw SVG), drop into `Sources/<Module>/Resources/Icons.xcassets/<name>.symbolset/`, and reference with `Image("name", bundle: .module)`:
+
+```swift
+// ❌ Silently blank on Android — "bookmark.fill" is not in SkipUI's hardcoded map
+Label("Bookmark", systemImage: "bookmark.fill")
+
+// ✅ Works on both platforms, and is localization-correct
+Label {
+    Text("Bookmark", bundle: .module, comment: "bookmark menu label")
+} icon: {
+    Image("bookmark", bundle: .module)
+}
+```
+
+The trailing-closure `Label { Text } icon: { Image }` form is the canonical shape — it makes the label translatable (the String Catalog extractor sees the `Text(_, bundle: .module, comment: …)`) and the icon cross-platform (the `.symbolset` resource ships to both platforms via the same module bundle).
+
+For the full workflow — picking glyphs, downloading the Apple-format SVG, the `.symbolset` directory layout with `Contents.json`, the hardcoded SF Symbol → Material Icon compatibility list, app launcher icons via `skip icon`, and Android-side rendering quirks — see the [skip-icons](../skip-icons/SKILL.md) skill.
+
+## Localization
+
+User-facing strings should be created with the bundle-aware `Text` constructor so they're extracted into the module's `Resources/Localizable.xcstrings` String Catalog and translated for both platforms:
+
+```swift
+Text("Settings", bundle: .module, comment: "settings sheet title")
+Label {
+    Text("Block Ads", bundle: .module, comment: "settings toggle for blocking ads")
+} icon: {
+    Image("shield", bundle: .module)
+}
+```
+
+Skip transpiles the catalog to Android string resources at build time, so a single source produces translated UI on both iOS and Android. For the full translation workflow — catalog schema, translation states, `xcstringstool` validation, byte-budgeted store metadata, and the App Store / Google Play locale mapping — see the [skip-localization](../skip-localization/SKILL.md) skill.
 
 ## References
 

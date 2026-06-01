@@ -6,7 +6,7 @@
 
 ```swift
 // Package.swift
-.package(url: "https://source.skip.dev/skip-web.git", from: "1.0.0"),
+.package(url: "https://source.skip.tools/skip-web.git", from: "1.0.0"),
 .product(name: "SkipWeb", package: "skip-web"),
 ```
 
@@ -69,7 +69,7 @@ navigator.evaluateJavaScript("document.title") { result in
 
 ```swift
 // Package.swift
-.package(url: "https://source.skip.dev/skip-av.git", from: "1.0.0"),
+.package(url: "https://source.skip.tools/skip-av.git", from: "1.0.0"),
 .product(name: "SkipAV", package: "skip-av"),
 ```
 
@@ -133,7 +133,7 @@ Android requires in `AndroidManifest.xml`:
 
 ```swift
 // Package.swift
-.package(url: "https://source.skip.dev/skip-motion.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-motion.git", "0.0.0"..<"2.0.0"),
 .product(name: "SkipMotion", package: "skip-motion"),
 ```
 
@@ -186,7 +186,7 @@ if let url = Bundle.module.url(forResource: "loading", withExtension: "json"),
 
 ```swift
 // Package.swift
-.package(url: "https://source.skip.dev/skip-device.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-device.git", "0.0.0"..<"2.0.0"),
 .product(name: "SkipDevice", package: "skip-device"),
 ```
 
