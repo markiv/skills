@@ -17,7 +17,7 @@ For the deep details, this skill links out:
 
 - [`references/xcstrings-schema.md`](references/xcstrings-schema.md) — the full `.xcstrings` JSON shape, translation-state machine, format specifiers / plurals / RTL marks, `xcstringstool` validation, JSON-hygiene pitfalls.
 - [`references/fastlane-metadata.md`](references/fastlane-metadata.md) — directory trees for both stores, exact byte budgets per file, screenshot paths, the `skip verify` / `skip meta index` validation commands.
-- [`references/language-codes.md`](references/language-codes.md) — BCP-47 (in-app) → App Store → Play code mapping, with a worked example and a generator script.
+- [`references/language-codes.md`](references/language-codes.md) — BCP-47 (in-app) → App Store → Play code mapping, with a working example and a generator script.
 
 ## Identifying translatable surfaces in a Skip project
 

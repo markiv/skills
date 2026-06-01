@@ -1,6 +1,6 @@
 ---
 name: skip-app-walkthrough
-description: Start-to-finish orchestrator for building a new cross-platform Skip app. Sequences the other Skip skills in the order you actually need them — scaffold with `skip init`, write SwiftUI, add Material Symbols icons, validate Kotlin transpilation with `swift test`, drive the running app with `skip app launch` + Maestro, localise via `Localizable.xcstrings`, and ship via `skip export` with fastlane metadata. Use this skill at the start of a new project, or when picking up an existing Skip app and trying to decide which skill applies to which phase. Each phase links to the dedicated skill for the deep dive. Also points at the `skipapp-todo` worked example at https://github.com/skiptools/skills as a reference build.
+description: Start-to-finish orchestrator for building a new cross-platform Skip app. Sequences the other Skip skills in the order you actually need them — scaffold with `skip init`, write SwiftUI, add Material Symbols icons, validate Kotlin transpilation with `swift test`, drive the running app with `skip app launch` + Maestro, localise via `Localizable.xcstrings`, and ship via `skip export` with fastlane metadata. Use this skill at the start of a new project, or when picking up an existing Skip app and trying to decide which skill applies to which phase. Each phase links to the dedicated skill for the deep dive. Also points at the `skipapp-todo` working example at https://github.com/skiptools/skills as a reference build.
 ---
 
 # Skip App Walkthrough
@@ -137,7 +137,7 @@ Sign the iOS archive and Android AAB, run `skip verify` and `skip meta index` on
 
 → [skip-deployment](../../../skip-testing-deployment/skills/skip-deployment/SKILL.md) for the `skip export` flags, code-signing setup, keystore management, ProGuard rules, and the GitHub Actions CI workflow.
 
-## A complete worked example: `skipapp-todo`
+## A complete working example: `skipapp-todo`
 
 The `skipapp-todo` sample app (in the project that ships these skills, at `https://github.com/skiptools/skills`) is a small TODO app built end-to-end with this exact phase ordering. Its README is a build log: every command, prompt, and decision is recorded with the surprises called out inline. Use it as a reference when you want to see "what does Phase X actually look like in practice."
 

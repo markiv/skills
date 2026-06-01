@@ -57,7 +57,7 @@ The mapping is one-way (catalog → store-specific), and the two stores disagree
 - Hebrew uses the legacy `iw` code on Play, not `he`. (This is a long-standing Android quirk.)
 - Latin American Spanish is `es-419` (UN region code), not `es-MX`.
 
-## A worked example
+## A working example
 
 The `skipapp-todo` sample app supports English, French, and Simplified Chinese. Its directory layout:
 
