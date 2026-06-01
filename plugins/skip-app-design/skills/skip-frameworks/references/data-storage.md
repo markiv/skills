@@ -6,7 +6,7 @@
 
 ```swift
 // Package.swift
-.package(url: "https://source.skip.dev/skip-sql.git", from: "1.0.0"),
+.package(url: "https://source.skip.tools/skip-sql.git", from: "1.0.0"),
 .product(name: "SkipSQL", package: "skip-sql"),
 ```
 
@@ -81,7 +81,7 @@ try db.migrate(migrations: [
 
 ```swift
 // Package.swift
-.package(url: "https://source.skip.dev/skip-keychain.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-keychain.git", "0.0.0"..<"2.0.0"),
 .product(name: "SkipKeychain", package: "skip-keychain"),
 ```
 

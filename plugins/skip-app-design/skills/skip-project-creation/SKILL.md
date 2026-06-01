@@ -14,6 +14,43 @@ brew install skiptools/skip/skip
 skip checkup
 ```
 
+You also need:
+- **Xcode** with Command Line Tools (for `xcodebuild` and the iOS Simulator).
+- **Android Studio** with at least one AVD created (for the SDK and an emulator). The Skip tooling assumes one is ready.
+- **Maestro** (`brew install mobile-dev-inc/tap/maestro`) if you intend to write UI flows — see [skip-ui-automation](../../../skip-testing-deployment/skills/skip-ui-automation/SKILL.md).
+
+## Pre-flight: boot simulators yourself before launching
+
+`skip app launch` does **not** boot the iOS Simulator for you, and does **not** start an Android emulator. If neither is running, the build succeeds and the install step silently fails. Start them yourself first:
+
+```bash
+# iOS — pick a UDID from `xcrun simctl list devices available`
+xcrun simctl boot <UDID>
+open -a Simulator
+
+# Android — list AVDs, start one
+emulator -list-avds
+emulator -avd Pixel_6_API_34   # blocks; run in another terminal
+
+# Confirm
+xcrun simctl list devices booted
+adb devices
+```
+
+When you have both a USB-connected Android device *and* a running emulator, scope the install with `ANDROID_SERIAL=emulator-5554 skip app launch` — there's no `--android-serial` flag on `skip app launch` itself.
+
+## `skip create` vs `skip init`
+
+Skip ships two scaffolding commands. They produce the same kind of project; the difference is how you supply the answers.
+
+- **`skip create`** is interactive. It walks you through prompts for every decision: project type (app vs. library), mode (Lite vs. Fuse), project name, module names, bundle id, whether to create test modules, license, App Fair participation, git repo, fastlane, pre-build, Android SDK install (for Fuse), and whether to open Xcode at the end. Use it when you're not sure what flags you want or you want a guided walk-through.
+- **`skip init`** is non-interactive and takes everything as positional args and flags. Use it when scripting, when running from CI, or when you already know the exact shape you want.
+
+```bash
+skip create                                                # interactive
+skip init --transpiled-app --appid=com.example.myapp my-app MyApp MyAppModel  # flag-driven
+```
+
 ## Creating a New App
 
 ### Skip Lite (Transpiled) App
@@ -41,17 +78,84 @@ skip init --native-app --appid=com.example.someapp some-app SomeApp
 - `--native-app` — Skip Fuse mode (native Swift compilation)
 - Fuse apps typically use a single module (no separate model module)
 
-### Common Options
+Before running this for the first time, install the Swift Android SDK with `skip android sdk install` and verify with `skip checkup --native` — see [skip-fuse](../skip-fuse/SKILL.md) for the full Fuse setup.
+
+### Flags — full reference
+
+The flags below are supported on both `skip init` and `skip create`. Default values come from `skipstone/Sources/SkipBuild/Commands/PackageCommand.swift`.
+
+**Mode (mutually exclusive, required for app/library):**
 
 | Flag | Purpose |
-|------|---------|
-| `--appid=ID` | Bundle identifier (required for apps) |
-| `--version=VER` | Initial version (default: 0.0.1) |
-| `--no-icon` | Skip icon generation |
-| `--icon=PATH` | Custom icon source (SVG, PDF, PNG) |
-| `--open-xcode` | Open Xcode after creation |
-| `--no-build` | Skip the initial build |
-| `--git-repo` | Initialize a git repository |
+|---|---|
+| `--transpiled-app` | Skip Lite (transpiled) app |
+| `--native-app` | Skip Fuse (native compiled) app |
+| `--transpiled-model` | Transpiled library / framework module |
+| `--native-model` | Native library / framework module |
+
+**Identity and versioning:**
+
+| Flag | Default | Purpose |
+|---|---|---|
+| `--appid=BUNDLE_ID` | (required) | Bundle identifier for apps |
+| `--version=VER` | none | Initial app version (e.g. `1.0.0`) |
+| `--ios-min-version=V` | `17.0` | Minimum iOS deployment target |
+| `--macos-min-version=V` | derived | Minimum macOS target; defaults to `iOS - 3` |
+| `--swift-package-version=V` | `6.1` | `swift-tools-version` in `Package.swift` |
+
+**Build and run:**
+
+| Flag | Default | Purpose |
+|---|---|---|
+| `--apk` / `--no-apk` | true | Build the Android APK in the initial build |
+| `--ipa` / `--no-ipa` | true | Build the iOS IPA in the initial build |
+| `--no-build` | — | Skip the initial build entirely |
+| `--open-xcode` | — | Open the project in Xcode after creation |
+| `--open-gradle` | — | Open the generated Gradle project after creation |
+
+**Icons:**
+
+| Flag | Purpose |
+|---|---|
+| `--icon=PATH` | Custom icon source (SVG, PDF, PNG); can repeat for per-platform sources |
+| `--icon-background=COLOR` | Background colour or gradient (e.g. `#1A73E8`, `#5C6BC0-#3B3F54`) |
+| `--icon-foreground=COLOR` | Foreground colour (overlay tint) |
+| `--icon-inset=DECIMAL` | Foreground inset fraction (e.g. `0.25`) |
+| `--icon-shadow=DECIMAL` | Shadow radius |
+| `--no-icon` | Skip icon generation entirely |
+
+**Modules and tests:**
+
+| Flag | Default | Purpose |
+|---|---|---|
+| `--bridged` / `--no-bridged` | false | For transpiled models, generate bridge-mode declarations for Fuse consumers |
+| `--module-tests` / `--no-module-tests` | auto | Create test modules (auto: yes for Lite, no for Fuse) |
+| `--chain` / `--no-chain` | true | When multiple module names are given, chain dependencies (each depends on the next) |
+| `--test-case-mode=MODE` | `testing` | Test framework for generated tests: `testing` (Swift Testing) or `xctest` |
+| `--resource-path=PATH` | `Resources` | Resource folder name |
+| `--kotlincompat` / `--no-kotlincompat` | false | For native libraries, use Kotlin-compatible bridging types in the generated wrappers |
+
+**Project housekeeping:**
+
+| Flag | Default | Purpose |
+|---|---|---|
+| `--git-repo` / `--no-git-repo` | false | Initialise a git repository in the project root |
+| `--github` / `--no-github` | false | Create GitHub metadata (`.github/` workflow files, etc.) |
+| `--fastlane` / `--no-fastlane` | true | Generate fastlane configuration (`Darwin/fastlane/`, `Android/fastlane/`) |
+| `--free` | — | Use a free-software license |
+| `--show-tree` / `--no-show-tree` | — | Print a file-system tree of the created project at the end |
+| `--validate-package` / `--no-validate-package` | true | Validate the generated `Package.swift` |
+
+**Module dependency syntax:**
+
+A positional module name can include inline dependency declarations using `:`:
+
+```bash
+# Module "MainApp" depends on the SkipUI product from skiptools/skip-ui at version 1.0
+skip init --transpiled-app --appid=com.example.demo demo MainApp:skiptools/skip-ui@1.0.0/SkipUI
+```
+
+Format: `ModuleName:[org/]repo[@version]/DependencyModule`. Defaults to `skiptools` if no org is given. Useful for one-off scaffolds that pull in a specific Skip framework without editing `Package.swift` after creation.
 
 ### Creating Libraries
 
@@ -61,6 +165,9 @@ skip init --transpiled-model my-lib MyLib
 
 # Native (Fuse) library
 skip init --native-model my-lib MyLib
+
+# A bridged Lite library (for Fuse consumers)
+skip init --transpiled-model --bridged my-lib MyLib
 ```
 
 ## Adding Dependencies After Creation
@@ -89,12 +196,12 @@ Consult the detailed dependency templates reference:
 
 Stable frameworks use `from:` versioning:
 ```swift
-.package(url: "https://source.skip.dev/skip-sql.git", from: "1.0.0"),
+.package(url: "https://source.skip.tools/skip-sql.git", from: "1.0.0"),
 ```
 
 Pre-stable frameworks use range versioning:
 ```swift
-.package(url: "https://source.skip.dev/skip-firebase.git", "0.0.0"..<"2.0.0"),
+.package(url: "https://source.skip.tools/skip-firebase.git", "0.0.0"..<"2.0.0"),
 ```
 
 Product dependencies go in the target that uses them:
