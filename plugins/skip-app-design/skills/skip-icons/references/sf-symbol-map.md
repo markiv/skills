@@ -1,8 +1,16 @@
 # Hardcoded SF Symbol → Material Icon compatibility map
 
-SkipUI hardcodes a compatibility map from a small set of SF Symbol names to Jetpack Compose Material Icons. If the name you pass to `systemImage:` is on this list, it renders correctly on both iOS and Android. Every other SF Symbol falls through to a default branch that renders nothing or a generic placeholder on Android, while still rendering correctly on iOS.
+> **This file is descriptive, not prescriptive.** It documents what SkipUI does internally when you pass a name to `Image(systemName:)` or `Label(_, systemImage:)`. **Do not use it as a "safe to use" list.** Even for the names below, the right pattern is to ship a `.symbolset` resource and call `Image("name", bundle: .module)`. See the main [skip-icons](../SKILL.md) skill for the hard rule and the symbolset workflow.
 
-**Treat this list as closed.** If your symbol isn't here, ship a `.symbolset` instead — see the main [skip-icons](../SKILL.md) skill for the workflow.
+SkipUI hardcodes a compatibility map from a small set of SF Symbol names to Jetpack Compose Material Icons. If the name you pass to `systemImage:` happens to be on this list, the Android build will render *some* glyph — usually a Material Icon that looks roughly similar to the requested SF Symbol but is not pixel-identical. Every other SF Symbol falls through to a default branch that renders nothing or a generic placeholder on Android.
+
+This list exists for two reasons: to document SkipUI's runtime behaviour, and to help you diagnose what's happening when you encounter `Image(systemName:)` calls in code you're auditing. It is not a recommendation. Three reasons you should still avoid `systemName:` even for these names:
+
+1. **The list is small and hard to remember.** Picking the right name from a 50-entry mental table is error-prone — especially for an agent who can pattern-match to a plausible SF Symbol like `checklist` or `bookmark.fill` that isn't here.
+2. **The rendering isn't identical to iOS.** The replacement Material Icon may differ in shape, weight, or visual centre from the requested SF Symbol.
+3. **The map is not a stable API.** SkipUI may add or remove entries between releases; a name that works today might not tomorrow.
+
+For every icon, ship a `.symbolset`. The cost is one ~10 KB SVG; the benefit is identical, predictable rendering on both platforms forever.
 
 ## The full hardcoded map
 
@@ -45,10 +53,12 @@ SkipUI hardcodes a compatibility map from a small set of SF Symbol names to Jetp
 
 ## Source of truth
 
-The mapping is implemented as a `switch` in `SkipUI/Components/Image.swift` in the [`skip-ui` repository](https://github.com/skiptools/skip-ui). When in doubt about whether a particular SF Symbol name is mapped, grep that file. The list grows occasionally upstream — if a glyph you need has been added, you can fall back to `systemImage:` for that one. Until then, treat anything not enumerated above as Android-unsupported.
+The mapping is implemented as a `switch` in `SkipUI/Components/Image.swift` in the [`skip-ui` repository](https://github.com/skiptools/skip-ui). If you need to confirm the current behaviour for a specific name, grep that file. The list changes between SkipUI releases; this table is a snapshot, not a guarantee.
 
-## Why this list is small
+## Why this list is small (and why the right answer is still `.symbolset`)
 
 The Material Icons set used by Compose has ~150 base icons (with outlined/filled/rounded variants). SF Symbols has thousands. There's no canonical 1-to-1 mapping, so SkipUI ships the obvious matches and leaves the rest to user-provided `.symbolset` resources, where the same SVG renders on both platforms by design.
 
-If you find yourself reaching for `systemImage:` more than a handful of times in an app, write a small wrapper or constant table that resolves your symbol names to either the SF Symbol (when mapped) or a local `Image("name", bundle: .module)` (when not) — and use the wrapper everywhere. It removes the cognitive load of remembering which 50 names work.
+For the same reason, the right answer for *every* icon — not just the unmapped ones — is `.symbolset`. The mapped names render *something* on Android, but they render a Material Icon, not the SF Symbol you asked for. Visual differences in shape and weight accumulate across an app's UI and produce a noticeably different feel between platforms. Shipping a single Material Symbol on both platforms via `.symbolset` is the only way to get true visual parity.
+
+If you encounter `systemImage:` / `systemName:` calls in an existing codebase, replace them all with `.symbolset` references — see the "Auditing an existing codebase" section in [skip-icons](../SKILL.md).

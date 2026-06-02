@@ -20,7 +20,7 @@ Agent skills for building cross-platform iOS and Android apps with [Skip](https:
 | [skip-lite-transpilation](plugins/skip-app-design/skills/skip-lite-transpilation/SKILL.md) | Swift-to-Kotlin transpilation rules for Lite mode. |
 | [skip-fuse](plugins/skip-app-design/skills/skip-fuse/SKILL.md) | Fuse mode: native Swift on Android via the Swift Android SDK. |
 | [skip-frameworks](plugins/skip-app-design/skills/skip-frameworks/SKILL.md) | Adding optional Skip frameworks (SQL, Firebase, Keychain, Web, AV, etc.). |
-| [skip-icons](plugins/skip-app-design/skills/skip-icons/SKILL.md) | Material Symbols `.symbolset` workflow and the SF-Symbols-on-Android trap. |
+| [skip-icons](plugins/skip-app-design/skills/skip-icons/SKILL.md) | The hard rule against `Image(systemName:)`, and the Material Symbols `.symbolset` workflow that replaces it. |
 | [skip-localization](plugins/skip-app-design/skills/skip-localization/SKILL.md) | `Localizable.xcstrings`, `InfoPlist.xcstrings`, and fastlane storefront metadata. |
 
 ### `skip-testing-deployment`
@@ -73,7 +73,7 @@ Loads `skip-ui-automation`. The first build takes a few minutes because Skip res
 
 ### 3. Replace the template UI with a real TODO list
 
-> **Prompt:** Replace the tab-based template with a single-screen `NavigationStack`: a text field at the top to add tasks, a list of tasks below with a tappable circle that toggles complete, swipe-to-delete, an overflow menu with "Clear Completed" and "Clear All", and an empty state. Use Material Symbols icons, not SF Symbols. Every interactive view needs an `.accessibilityIdentifier(...)`.
+> **Prompt:** Replace the tab-based template with a single-screen `NavigationStack`: a text field at the top to add tasks, a list of tasks below with a tappable circle that toggles complete, swipe-to-delete, an overflow menu with "Clear Completed" and "Clear All", and an empty state. For every icon, use a Material Symbol downloaded from `fonts.google.com/icons` in Apple symbolset format and reference it via `Image("name", bundle: .module)`. Do not use `Image(systemName:)` or `Label(_, systemImage:)` anywhere — those rely on Apple's SF Symbols catalogue and render blank on Android. Every interactive view needs an `.accessibilityIdentifier(...)`.
 
 Loads `building-skip-ui`, `skip-icons`, and `skip-lite-transpilation`. The agent rewrites `ContentView.swift` and `ViewModel.swift`. It downloads `add`, `check_circle`, `radio_button_unchecked`, `delete`, `delete_sweep`, and `task_alt` from `fonts.gstatic.com` in Apple `.symbolset` format and writes each under `Sources/TodoApp/Resources/Icons.xcassets/<name>.symbolset/` with the right `Contents.json`.
 

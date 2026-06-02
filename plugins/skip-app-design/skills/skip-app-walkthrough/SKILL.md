@@ -16,7 +16,7 @@ If you're starting a new app, read this top to bottom. If you're picking up an e
 | 1 | Decide between Lite (transpiled) and Fuse (native) modes | [skip-fuse](../skip-fuse/SKILL.md) for the trade-off table |
 | 2 | Scaffold the project with `skip init` | [skip-project-creation](../skip-project-creation/SKILL.md) |
 | 3 | Write SwiftUI view code | [building-skip-ui](../building-skip-ui/SKILL.md) |
-| 4 | Add icons (Material Symbols, not SF Symbols) | [skip-icons](../skip-icons/SKILL.md) |
+| 4 | Add icons via `.symbolset` resources (never `systemName:` / `systemImage:`) | [skip-icons](../skip-icons/SKILL.md) |
 | 5 | Write Swift model code that transpiles cleanly | [skip-lite-transpilation](../skip-lite-transpilation/SKILL.md) (Lite) or [skip-fuse](../skip-fuse/SKILL.md) (Fuse) |
 | 6 | Add optional frameworks (SQL, Firebase, Web, AV, …) | [skip-frameworks](../skip-frameworks/SKILL.md) |
 | 7 | Write tests (Swift Testing or XCTest) | [skip-testing](../../../skip-testing-deployment/skills/skip-testing/SKILL.md) |
@@ -57,9 +57,9 @@ Use standard SwiftUI. SkipUI translates it to Compose for you. Two non-obvious c
 
 ## Phase 4 — Icons
 
-`Image(systemName:)` / `Label(_, systemImage:)` only render on Android for the ~50 SF Symbol names hardcoded in SkipUI's compatibility map. For everything else (`bookmark.fill`, `globe.americas`, etc.) you get a blank space on Android while iOS looks fine.
+**Never use `Image(systemName:)` or `Label(_, systemImage:)` in a Skip project.** SF Symbols are an Apple-only catalogue; most names render as a blank on Android, and even the ~50 names SkipUI maps internally produce a different-looking Material Icon rather than the SF Symbol you asked for.
 
-The fix: download the Material Symbol from `fonts.google.com/icons` in **Apple symbolset format**, drop it under `Sources/<Module>/Resources/Icons.xcassets/<name>.symbolset/`, and render with `Image("<name>", bundle: .module)`. One symbolset works on both platforms.
+For every icon: download the Material Symbol from `fonts.google.com/icons` in **Apple symbolset format**, drop it under `Sources/<Module>/Resources/Icons.xcassets/<name>.symbolset/`, and render with `Image("<name>", bundle: .module)`. One symbolset works identically on both platforms.
 
 ```bash
 # Example — download three glyphs
@@ -72,7 +72,7 @@ for name in home settings search; do
 done
 ```
 
-→ [skip-icons](../skip-icons/SKILL.md) for the full workflow including the `Contents.json` templates, the SF Symbol compatibility list, and how to verify a glyph rendered on both platforms.
+→ [skip-icons](../skip-icons/SKILL.md) for the full workflow including the `Contents.json` templates, how to audit an existing codebase for stray `systemName:` calls, and how to verify a glyph rendered on both platforms.
 
 ## Phase 5 — Write Swift that transpiles
 

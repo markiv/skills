@@ -1,6 +1,6 @@
 ---
 name: building-skip-ui
-description: Building SwiftUI views in Skip projects that work on both iOS and Android. Covers supported components, navigation, state management, Jetpack Compose customization, Material 3 theming, the cross-platform Image / icon pattern (the `systemImage:` trap and the Material Symbols workflow), and the localization-correct `Label { Text } icon: { Image }` shape.
+description: Building SwiftUI views in Skip projects that work on both iOS and Android. Covers supported components, navigation, state management, Jetpack Compose customization, Material 3 theming, the hard rule against `Image(systemName:)` / `Label(_, systemImage:)` (use `.symbolset` resources via `Image("name", bundle: .module)` instead), and the localization-correct `Label { Text } icon: { Image }` shape.
 ---
 
 # Building Skip UI
@@ -60,10 +60,11 @@ Consult the reference files for detailed tables:
    ```swift
    .toolbar {
        ToolbarItem(placement: .primaryAction) {   // not .topBarTrailing
-           Menu { ... } label: { Image(systemName: "ellipsis") }
+           Menu { ... } label: { Image("more_vert", bundle: .module) }
        }
    }
    ```
+   (`Image(systemName: "ellipsis")` would happen to render on Android because `ellipsis` is one of the ~50 SF Symbol names SkipUI maps internally — but you should still ship a `.symbolset`. See [skip-icons](../skip-icons/SKILL.md) for why.)
 - `Array.remove(atOffsets: IndexSet)`: this is provided by **SwiftUI's** extension on `RangeReplaceableCollection`, not by Foundation. A pure-model module that doesn't `import SwiftUI` will not have it. Either import SwiftUI in the model, or expose a plain `func remove(at: [Int])` and let the view convert `Array(offsets)`:
    ```swift
    // In TodoAppModel/ViewModel.swift — no SwiftUI import needed
@@ -170,15 +171,18 @@ ContentView()
 
 ## Icons
 
-`Image(systemName:)` and `Label(_, systemImage:)` rely on Apple's SF Symbols catalog, which has no Android equivalent. SkipUI hardcodes a compatibility map for only about 50 SF Symbol names — every other SF Symbol passed to `systemImage:` renders blank (or as a placeholder) on Android while still rendering correctly on iOS, so the bug only shows up cross-platform.
+**The hard rule for Skip projects: never use `Image(systemName:)` or `Label(_, systemImage:)`. Always ship a `.symbolset` resource and call `Image("name", bundle: .module)`.**
 
-For any icon outside that small list, download Material Symbols from `https://fonts.google.com/icons` in **Apple symbolset format** (not raw SVG), drop into `Sources/<Module>/Resources/Icons.xcassets/<name>.symbolset/`, and reference with `Image("name", bundle: .module)`:
+SF Symbols are an Apple-only catalogue with no Android equivalent. Almost every `systemName:` call you write will render a blank on Android — the iOS build resolves the name against Apple's catalogue, the Android build has nothing to resolve it against. Even for the ~50 names SkipUI hardcodes a Material Icon substitute for, the rendering isn't pixel-identical to the SF Symbol you asked for, and the hardcoded map can change between SkipUI releases. The reliable answer in all cases is a single `.symbolset` that ships to both platforms and renders identically.
+
+Download Material Symbols from `https://fonts.google.com/icons` in **Apple symbolset format** (not raw SVG), drop into `Sources/<Module>/Resources/Icons.xcassets/<name>.symbolset/`, and reference with `Image("name", bundle: .module)`:
 
 ```swift
-// ❌ Silently blank on Android — "bookmark.fill" is not in SkipUI's hardcoded map
+// ❌ Will render blank on Android.
 Label("Bookmark", systemImage: "bookmark.fill")
+Image(systemName: "checklist")
 
-// ✅ Works on both platforms, and is localization-correct
+// ✅ Works on both platforms; localisation-correct; predictable.
 Label {
     Text("Bookmark", bundle: .module, comment: "bookmark menu label")
 } icon: {
@@ -188,7 +192,7 @@ Label {
 
 The trailing-closure `Label { Text } icon: { Image }` form is the canonical shape — it makes the label translatable (the String Catalog extractor sees the `Text(_, bundle: .module, comment: …)`) and the icon cross-platform (the `.symbolset` resource ships to both platforms via the same module bundle).
 
-For the full workflow — picking glyphs, downloading the Apple-format SVG, the `.symbolset` directory layout with `Contents.json`, the hardcoded SF Symbol → Material Icon compatibility list, app launcher icons via `skip icon`, and Android-side rendering quirks — see the [skip-icons](../skip-icons/SKILL.md) skill.
+For the full workflow — picking glyphs, downloading the Apple-format SVG, the `.symbolset` directory layout with `Contents.json`, app launcher icons via `skip icon`, and Android-side rendering quirks — see the [skip-icons](../skip-icons/SKILL.md) skill.
 
 ## Localization
 

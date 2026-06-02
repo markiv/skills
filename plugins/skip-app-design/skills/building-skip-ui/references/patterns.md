@@ -2,16 +2,36 @@
 
 ## Tab-Based Navigation
 
+Use `.symbolset` resources rather than `systemImage:` — see [skip-icons](../../skip-icons/SKILL.md) for why.
+
 ```swift
 struct AppTabView: View {
     var body: some View {
         TabView {
             HomeView()
-                .tabItem { Label("Home", systemImage: "house") }
+                .tabItem {
+                    Label {
+                        Text("Home", bundle: .module, comment: "Home tab title")
+                    } icon: {
+                        Image("home", bundle: .module)
+                    }
+                }
             SearchView()
-                .tabItem { Label("Search", systemImage: "magnifyingglass") }
+                .tabItem {
+                    Label {
+                        Text("Search", bundle: .module, comment: "Search tab title")
+                    } icon: {
+                        Image("search", bundle: .module)
+                    }
+                }
             ProfileView()
-                .tabItem { Label("Profile", systemImage: "person") }
+                .tabItem {
+                    Label {
+                        Text("Profile", bundle: .module, comment: "Profile tab title")
+                    } icon: {
+                        Image("person", bundle: .module)
+                    }
+                }
         }
     }
 }
